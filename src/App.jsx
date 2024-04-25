@@ -2,16 +2,23 @@
 import React from 'react';
 import './App.scss';
 
-// import usersFromServer from './api/users';
-// import categoriesFromServer from './api/categories';
-// import productsFromServer from './api/products';
+ import usersFromServer from './api/users';
+ import categoriesFromServer from './api/categories';
+ import productsFromServer from './api/products';
 
-// const products = productsFromServer.map((product) => {
-//   const category = null; // find by product.categoryId
-//   const user = null; // find by category.ownerId
+ function findUser(userId) {
+  return usersFromServer.find((user) => user.id === userId);
+}
 
-//   return null;
-// });
+function findCategory(categoryId) {
+  return categoriesFromServer.find((category) => category.id === categoryId);
+}
+
+const preparedProducts = productsFromServer.map(product => ({
+  ...product,
+  category: findCategory(product.categoryId),
+  user: findUser(findCategory(product.categoryId).ownerId),
+}));
 
 export const App = () => (
   <div className="section">
@@ -193,10 +200,35 @@ export const App = () => (
           </thead>
 
           <tbody>
-            <tr data-cy="Product">
-              <td className="has-text-weight-bold" data-cy="ProductId">
-                1
-              </td>
+          {preparedProducts.map(preparedProduct => (
+              <tr data-cy="Product">
+                <td className="has-text-weight-bold" data-cy="ProductId">
+                  {preparedProduct.id}
+                </td>
+
+                <td data-cy="ProductName">
+                  {preparedProduct.name}
+                </td>
+
+                <td data-cy="ProductCategory">
+                  {preparedProduct.category.icon}
+                  {' - '}
+                  {preparedProduct.category.title}
+                </td>
+
+                <td
+                  data-cy="ProductUser"
+                  className={
+                    preparedProduct.user.sex === 'm'
+                      ? 'has-text-link'
+                      : 'has-text-danger'
+                  }
+                >
+                  {preparedProduct.user.name}
+                </td>
+              </tr>
+            ))}
+            {/* <tr data-cy="Product">
 
               <td data-cy="ProductName">Milk</td>
               <td data-cy="ProductCategory">🍺 - Drinks</td>
@@ -240,6 +272,7 @@ export const App = () => (
                 Roma
               </td>
             </tr>
+            </tr> */}
           </tbody>
         </table>
       </div>
